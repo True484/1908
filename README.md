@@ -1,51 +1,52 @@
 # 1908
-"""
-Симулятор каси магазину
-Виправлений код для розрахунку чека.
-"""
+from pywebio.input import input
+from pywebio.output import put_text, put_success, put_error
+from pywebio.session import run_async
+import logging
 
-import textwrap
-from datetime import datetime
-from decimal import Decimal, ROUND_HALF_UP
+# Налаштування логування
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger()
 
-# Функція для форматування ціни
-def format_price(value):
-    return Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+# Запитання для вікторини
+questions = [
+    {"question": "Яка планета є найбільшою у Сонячній системі?", "answer": "юпітер"},
+    {"question": "Скільки континентів на Землі?", "answer": "7"},
+    {"question": "Як називається столиця Франції?", "answer": "париж"},
+    {"question": "Який метал є основним у виробництві алюмінієвої фольги?", "answer": "алюміній"},
+    {"question": "Скільки кольорів у веселці?", "answer": "7"}
+]
 
-# Введення даних для першого товару
-item_1_title = textwrap.shorten(input('Введіть назву першого товару: ').ljust(20, '.'), width=20, placeholder='...')
-item_1_quantity = int(round(float(input('Введіть бажаєму кількість першого товару: '))))
-item_1_price = format_price(input('Введіть ціну першого товару: '))
+def school_quiz():
+    # Запит імені користувача
+    user_name = input("Введіть своє ім'я:")
+    logger.info(f"Користувач почав вікторину: {user_name}")
+    
+    score = 0  # Лічильник правильних відповідей
 
-# Введення даних для другого товару
-item_2_title = textwrap.shorten(input('Введіть назву другого товару: ').ljust(20, '.'), width=20, placeholder='...')
-item_2_quantity = int(round(float(input('Введіть бажаєму кількість другого товару: '))))
-item_2_price = format_price(input('Введіть ціну другого товару: '))
+    for i, item in enumerate(questions, start=1):
+        user_answer = input(item['question']).strip().lower()
+        correct_answer = item['answer'].lower()
 
-# Розрахунок вартості товарів
-item_1_total_cost = format_price(item_1_quantity * item_1_price)
-item_2_total_cost = format_price(item_2_quantity * item_2_price)
+        if user_answer == correct_answer:
+            put_success(f"Вірно! {item['question']} → {user_answer}")
+            score += 1
+        else:
+            put_error(f"Невірно! {item['question']} → {user_answer}. Правильна відповідь: {item['answer']}")
 
-# Загальний результат
-total_cost = item_1_total_cost + item_2_total_cost
+        # Логування відповіді
+        logger.debug(f"Запитання {i}: {item['question']} → Відповідь: {user_answer}, Правильна: {correct_answer}")
 
-# Шаблон для друку
-printing_template = '{}\t\t\t\t{}\t\t\t{}\t\t\t{}'
+    # Розрахунок результатів
+    total_questions = len(questions)
+    percentage = (score / total_questions) * 100
+    put_text(f"{user_name}, ви набрали {score} із {total_questions} правильних відповідей.")
+    put_text(f"Це становить {percentage:.2f}% правильних відповідей.")
 
-# Друк чека
-print('\n\n\n')
-print('Фіскальний чек'.capitalize().center(80, '~'))
-print('МАГАЗИН "ВСЕ ДЛЯ ДОМУ"'.center(80))
-print(f'Товар\t\t\t\tКількість\t\tЦіна\t\tВартість')
-print(printing_template.format(item_1_title, item_1_quantity, f"{item_1_price:.2f}", f"{item_1_total_cost:.2f}"))
-print(printing_template.format(item_2_title, item_2_quantity, f"{item_2_price:.2f}", f"{item_2_total_cost:.2f}"))
-print('~' * 80)
-print(printing_template.format(
-    'ВСЬОГО'.ljust(20),
-    '-',
-    '-',
-    f"{total_cost:.2f}"
-))
-print(datetime.now().strftime('%d-%m-%Y %H:%M:%S').rjust(80))
-print('\n\n')
+    # Логування фінального результату
+    logger.info(f"Результат {user_name}: {score}/{total_questions} ({percentage:.2f}%)")
 
+# Запуск додатку
+if __name__ == "__main__":
+    from pywebio import start_server
+    start_server(school_quiz, port=8080)
