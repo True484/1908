@@ -1,31 +1,15 @@
-# rectangle_area.py
+import requests
 
-def calculate_rectangle_area(length, width):
-    """
-    Обчислює площу прямокутника.
-    :param length: Довжина прямокутника
-    :param width: Ширина прямокутника
-    :return: Площа прямокутника
-    """
-    if length <= 0 or width <= 0:
-        raise ValueError("Довжина та ширина повинні бути більше нуля")
-    return length * width
+# Отримання даних із API
+response = requests.get("https://dummyjson.com/users")
+data = response.json()['users']
 
+# Підрахунки
+younger_than_30 = sum(1 for user in data if user['age'] < 30)
+women_with_green_eyes = sum(1 for user in data if user['gender'] == 'female' and user['eyeColor'] == 'green')
+living_in_san_francisco = sum(1 for user in data if user['address']['city'] == 'San Francisco')
 
-# test_rectangle_area.py
-
-import pytest
-from rectangle_area import calculate_rectangle_area
-
-def test_positive_case():
-    assert calculate_rectangle_area(5, 3) == 15
-
-def test_zero_length():
-    with pytest.raises(ValueError):
-        calculate_rectangle_area(0, 3)
-
-def test_negative_width():
-    with pytest.raises(ValueError):
-        calculate_rectangle_area(5, -2)
-
-
+# Виведення результатів
+print(f"Кількість користувачів молодше 30 років: {younger_than_30}")
+print(f"Кількість жінок із зеленими очима: {women_with_green_eyes}")
+print(f"Кількість людей, які живуть у San Francisco: {living_in_san_francisco}")
