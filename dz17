@@ -1,0 +1,15 @@
+import requests
+import json
+
+def get_astronauts():
+  """Отримує список астронавтів на МКС з відкритого API."""
+
+  response = requests.get('http://api.open-notify.org/astros.json')
+  data = json.loads(response.text)
+  astronauts = [person['name'] for person in data['people']]
+  return astronauts
+
+ 
+ __name__ == '__main__':
+  astronauts = get_astronauts()
+  print("Астронавти на МКС:", astronauts)
