@@ -1,0 +1,28 @@
+# Програма для обчислення суми чисел
+def calculate_sum():
+    total_sum = 0  # Початкова сума
+    while True:
+        try:
+            number = int(input("Введіть число: "))
+            if number == 0:  # Умова для зупинки циклу
+                break
+            total_sum += number
+        except ValueError:
+            print("Будь ласка, введіть коректне число.")
+    print(f"Сума чисел: {total_sum}")
+
+# Виклик функції
+calculate_sum()
+
+
+              # Функція для обчислення добутку чисел
+def multiply(*args):
+    result = 1  # Початкове значення добутку
+    for number in args:
+        result *= number
+    return result
+
+# Приклади використання
+print(multiply(2, 3, 4))  # Виведе: 24
+print(multiply(5, 6))     # Виведе: 30
+print(multiply())         # Виведе: 1 (нічого не передано)
