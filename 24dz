@@ -1,0 +1,30 @@
+class Car:
+    def __init__(self, year: int, manufacturer: str, model: str, fuel_consumption: float, price: float):
+        self.year = year
+        self.manufacturer = manufacturer
+        self.model = model
+        self.mileage = 0  # Пробіг за замовчуванням 0
+        self.fuel_consumption = fuel_consumption
+        self.price = price
+
+    def drive(self):
+        print(f"Я авто марки {self.model}, їду по справам господаря")
+
+    @property
+    def category(self):
+        return "Крутяк" if self.price > 15000 else "Тачелла"
+
+
+# Створюємо екземпляри автомобілів
+car1 = Car(2022, "Toyota", "Camry", 7.5, 20000)
+car2 = Car(2015, "Ford", "Focus", 6.5, 12000)
+
+# Змінюємо пробіг одного з авто
+car1.mileage = 50000
+
+# Викликаємо метод drive
+car2.drive()
+
+# Виводимо категорію авто
+print(car1.category)  # Крутяк
+print(car2.category)  # Тачелла
