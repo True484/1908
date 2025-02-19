@@ -1,41 +1,54 @@
-class Vehicle:
-    def __init__(self, brand, model):
-        self.brand = brand
-        self.model = model
+from pymongo import MongoClient
 
-    def info(self):
-        print(f"Транспортний засіб: {self.brand} {self.model}")
+# 1️ Підключення до MongoDB
+client = MongoClient("mongodb://localhost:27017/")
+db = client["store"]
+collection = db["products"]
 
-class Car(Vehicle):
-    def __init__(self, brand, model, num_doors):
-        super().__init__(brand, model)
-        self.num_doors = num_doors
+# Очищення колекції перед запуском скрипта (необов'язково)
+collection.delete_many({})
 
-    def info(self):
-        print(f"Автомобіль: {self.brand} {self.model}, Кількість дверей: {self.num_doors}")
+# 2️ Створення документів
+products = [
+    {"name": "Laptop", "price": 1000, "quantity": 5, "category": "computers"},
+    {"name": "Mouse", "price": 50, "quantity": 20, "category": "accessories"},
+    {"name": "Keyboard", "price": 80, "quantity": 15, "category": "accessories"},
+]
+collection.insert_many(products)
 
-class Bike(Vehicle):
-    def __init__(self, brand, model, bike_type):
-        super().__init__(brand, model)
-        self.bike_type = bike_type
+# 3️ Читання документів
+print("\nВсі товари:")
+for product in collection.find():
+    print(product)
 
-    def info(self):
-        print(f"Велосипед: {self.brand} {self.model}, Тип: {self.bike_type}")
+print("\nЗнайти товар за назвою 'Mouse':")
+print(collection.find_one({"name": "Mouse"}))
 
-class Truck(Vehicle):
-    def __init__(self, brand, model, capacity):
-        super().__init__(brand, model)
-        self.capacity = capacity
+print("\nТовари, ціна яких більше 50:")
+for product in collection.find({"price": {"$gt": 50}}):
+    print(product)
 
-    def info(self):
-        print(f"Вантажівка: {self.brand} {self.model}, Вантажопідйомність: {self.capacity} тонн")
+print("\nПошук товарів за назвою, що містить 'key' ($regex):")
+for product in collection.find({"name": {"$regex": "key", "$options": "i"}}):
+    print(product)
 
-# Створення об'єктів
-car = Car("Toyota", "Camry", 4)
-bike = Bike("Giant", "Escape 3", "міський")
-truck = Truck("Volvo", "FH16", 25)
+print("\nТри товари з найбільшими залишками:")
+for product in collection.find().sort("quantity", -1).limit(3):
+    print(product)
 
-# Виведення інформації про транспортні засоби
-car.info()
-bike.info()
-truck.info()
+# 4️ Оновлення документів
+collection.update_one({"name": "Laptop"}, {"$set": {"category": "electronics"}})
+collection.update_one({"name": "Mouse"}, {"$inc": {"quantity": 5}})
+collection.update_one({"name": "Keyboard"}, {"$mul": {"price": 0.5}})
+
+print("\nОновлені товари:")
+for product in collection.find():
+    print(product)
+
+# 5️ Видалення документів
+collection.delete_one({"name": "Mouse"})
+collection.delete_many({"quantity": 0})
+
+print("\nКолекція після видалення товарів:")
+for product in collection.find():
+    print(product)
