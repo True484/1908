@@ -1,0 +1,54 @@
+// Backend (Node.js + Express + MongoDB)
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+
+const app = express();
+app.use(express.json());
+app.use(cors());
+
+mongoose.connect('mongodb://localhost:27017/tours', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+});
+
+const TourSchema = new mongoose.Schema({
+    title: String,
+    description: String,
+    price: Number,
+    image: String,
+});
+
+const Tour = mongoose.model('Tour', TourSchema);
+
+// API маршрути
+app.post('/tours', async (req, res) => {
+    const tour = new Tour(req.body);
+    await tour.save();
+    res.status(201).send(tour);
+});
+
+app.get('/tours', async (req, res) => {
+    const tours = await Tour.find().sort({ _id: -1 }).limit(20);
+    res.send(tours);
+});
+
+app.get('/tours/:id', async (req, res) => {
+    const tour = await Tour.findById(req.params.id);
+    res.send(tour);
+});
+
+app.put('/tours/:id', async (req, res) => {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.send(tour);
+});
+
+app.delete('/tours/:id', async (req, res) => {
+    await Tour.findByIdAndDelete(req.params.id);
+    res.send({ message: 'Тур видалено' });
+});
+
+app.listen(5000, () => console.log('Сервер працює на порту 5000'));
+
+// Фронтенд (React + Bootstrap)
+// Створення React-компонентів для відображення, пошуку та деталей туру
